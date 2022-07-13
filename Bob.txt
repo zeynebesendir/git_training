@@ -1,2 +1,1 @@
 Hi!! Updated on master to create conflict
-Text added on master branch
