@@ -1,2 +1,2 @@
-Hi!! I'm Bob. I'm new here.
+Hi!! Updated on master to create conflict
 Text added on master branch
