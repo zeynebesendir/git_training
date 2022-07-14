@@ -3,3 +3,4 @@ Second line for change_alice branch
 This line added for merging divergent branches
 This line added after creating patrick branch
 This line added on Github to fetch remote changes.
+This line added on local, to create error when pulling. this will be stashed before pull
