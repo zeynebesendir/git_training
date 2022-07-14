@@ -1,0 +1,282 @@
+Clone from remote repo:
+git clone https://github.com/zeynebesendir/git_training.git
+
+Add bob.txt
+
+Check the changes on the WORKING DIRECTORY
+git status 
+
+Add the file to the STAGING AREA
+git add Bob.txt     //add single file
+git add -A          //add all files
+
+Commit changes to the LOCAL REPOSITORY
+git commit -m "Add Bob"
+
+Share your commits to REMOTE REPOSITORY
+git push
+
+update bob.txt and 
+see what has changed in your Working Directory
+git diff | shows changes on the Working Directory only
+
+show what changes are staged already
+git diff --staged
+
+compare that commit and the one one before
+git diff <commit>^!
+git diff <from commit> <to commit> | specify commits to compare
+
+git log 
+git remote show origin
+
+create branch | adds the new branch to the Local Repository
+git branch <branch name>
+git checkout change_alice | move the HEAD to the branch you specify.
+
+create and switch to the new branch with one line code, add -b
+git checkout -b change_alice
+
+When you checkout a branch name that has an exact match in the remote branches, 
+you will get a new local branch that is linked to the remote branch. 
+The remote branch is the upstream branch of your local one.
+    master(local repo)-> origin/master(remote repo)
+    change_alice(local repo)->origin/change_alice(remote repo)
+
+see list of branches
+git branch
+
+see list of branches local repo knows (includes remote repos as well)
+git branch -a
+
+create a change_alice branch on the Remote Repository and set our local change_alice to track that new branch
+otherwise you'll get fatal: current branch change_alice has no upstream branch error.
+to do that:
+git push --set-upstream origin change_alice
+
+After this, check remote branch If the new branch is there.
+
+If we actually want our branch to track something that already EXISTS on the Remote Repository.  
+Maybe a colleague has already pushed some changes, 
+while we were working on something related on our local branch, 
+and we'd like to integrate the two. 
+Then we could just set the upstream for our change_alice branch to a new remote 
+by using git branch --set-upstream-to=origin/change_alice and from there on track the remote branch.
+git branch --set-upstream-to=origin/change_alice
+
+To get the changes into master we need to merge the change_alice branch into master.
+You always merge some branch into the one you're currently at.
+
+git checkout master
+git merge change_alice | merge without conflict
+
+Update Bob and commit to master
+Update Alice and commit to change_alice
+Both master and change_alice originated from the same commit, 
+but since then they diverged, each having their own additional commit.
+
+Try merge them: 
+git checkout master
+git merge change_alice
+
+as fast-forward merge is not possible. 
+Instead your favorite text editor will open and 
+allow you to change the message of the merge commit git is about to make in order to get the two branches back together
+
+gets this message:
+Merge branch 'change_alice'
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+
+git insert&save message:
+Press ESC
+:w  //save
+:q  //quit
+:wq to save and exit
+
+Once we add a message for the commit, branches will merge.
+
+RESOLVING CONFLICTS:
+
+create a new branch 
+git checkout -b bobby_branch and update bob.txt and commit
+checkout master and update bob.txt first line again
+
+git merge bobby_branch
+
+    err:
+    Auto-merging Bob.txt
+    CONFLICT (content): Merge conflict in Bob.txt
+    Automatic merge failed; fix conflicts and then commit the result.
+
+
+Fix:
+
+git status | see instructions on how to continue
+           | open the doc bob.txt to see diff 
+
+<<<<<<< HEAD
+Hi!! Updated on master to create conflict
+=======
+Hi!! Changed this to update bobby_branch
+>>>>>>> bobby_branch
+Text added on master branch
+
+To resolve the conflict by hand, 
+you'll just need to make sure that you end up with some reasonable content and 
+without the special lines git has introduced to the file.
+
+Change the file to something like this:
+Hi!! Updated on master to create conflict
+
+git add and commit the modified bob.txt as usual on master.
+
+If you don't want to follow through the merge, abort it:
+git merge --abort
+
+REBASING:
+Git has another clean way to integrate changes between two branches, which is called rebase.
+
+When a branch is diverging from the one it's based on and 
+you want to integrate the latest changes back into your current branch, 
+rebase offers a cleaner way of doing that than a merge would.
+
+create-checkout branch add_patrick
+checkout master and update alice.txt
+
+get the changes made in master branch to add_patrick branch:
+git checkout add_patrick
+git rebase master
+
+To be more exact what git does after moving HEAD back to the common ancestor of the branches, 
+is to store parts of every single commit you've made on the branch 
+(the diff of changes, and the commit text, author, etc.).
+
+After that it does a checkout of the latest commit of the branch you're rebasing on, 
+and then applies each of the stored changed as a new commit on top of that.
+
+Using rebase you can make sure that you frequently integrate the changes other people make and push to master, 
+while keeping a clean linear history that allows you to do a fast-forward merge 
+when it's time to get your work into the shared branch.
+
+git log --graph
+
+
+RESOLVING CONFLICTS
+
+Just like for a merge you may run into conflicts, if you run into two commits changing the same parts of a file.
+
+However when you encounter a conflict during a rebase you don't fix it in an extra merge commit, but can simply resolve it in the commit that is currently being applied.
+Again, basing your changes directly on the current state of the original branch.
+
+The only distinction from merge, 
+that as you're not introducing a merge commit there is no need to commit your resolution. 
+Simply add the changes to the Staging Environment and then 
+
+git rebase --continue. 
+
+The conflict will be resolved in the commit that was just being applied.
+
+As when merging, you can always stop and drop everything you've done so far when you:
+git rebase --abort.
+
+UPDATING THE DEV ENVIRONMENT WITH REMOTE CHANGES
+
+Go the github and change Alice.txt on master and commit 
+(Alice.txt only has initial version at this point - we haven't pushed anything to remote yet)
+
+FETCHING CHANGES
+
+To get changes made to the Remote into your Local Repository use: 
+git fetch
+
+This gets any changes on the remote - so commits as well as branches - into your Local Repository.
+Note that at this point, changes aren't integrated into the local branches and thus the Working Directory and Staging Area yet.
+
+git checkout master 
+git status
+On branch fetching_changes_sample
+Your branch is behind 'origin/fetching_changes_sample' by 1 commit, and can be fast-forwarded.
+(use "git pull" to update your local branch)
+
+PULLING CHANGES
+As we have no working or staged changes, 
+we could just execute git pull now to get the changes from the Repository all the way into our working area.
+
+Pulling will implicitly also fetch the Remote Repository, 
+but sometimes it is a good idea to do a fetch on it's own.
+For example when you want to synchronize any new remote branches, or 
+when you want to make sure your Local Repository is up to date before you do a git rebase on something like origin/master.
+
+Before we pull, lets change a file locally to see what happens.
+Lets also change Alice.txt in our Working Directory now!
+If you now try to do a git pull you'll see the following error:
+
+
+git pull
+error: Your local changes to the following files would be overwritten by merge:
+        Alice.txt
+Please commit your changes or stash them before you merge.
+Aborting
+
+git merge --about | cancel merge
+
+You can not pull in any changes, while there are modifications to files in the Working Directory 
+that are also changed by the commits you're pulling in.
+
+While one way around this is, to just get your changes to a point where you're confident in them, 
+add them to the Staging Environment, 
+before you finally commit them, this is a good moment to learn about another great tool, the git stash.
+
+STASHING CHANGES
+
+If at any point you have local changes that you do not yet want to put into a commit, or 
+want to store somewhere while you try some different angle to solve a problem, 
+you can stash those changes away.
+
+A git stash is basically a stack of changes on which you store any changes to the Working Directory.
+
+The commands: 
+git stash       | places any modifications to the Working Directory on the stash, and
+git stash pop   | takes the latest change that was stashed and applies it the to the Working Directory again.
+                | removes the latest stashed change before applying it again. like a stack
+git stash apply | doesn't remove them from the stash before applying them
+git stash list  | to inspect current stash, lists all individual entries
+git stash show  | to show the changes in the latest entry on the stash
+git stash branch {BRANCH NAME}  | creates a branch, starting from the HEAD at the moment you've stashed the changes, and
+                                | applies the stashed changes to that branch.
+
+Now that we know about git stash, 
+lets run it to remove our local changes to Alice.txt from the Working Directory, 
+so that we can go ahead and git pull the changes we've made via the website.
+
+git stash
+git pull
+git stash pop | to get the changes back //got errors at this stage r. conflicts next
+
+PULLING WITH CONFLICTS
+
+git fetch | to see the remote change without pulling it in right away.
+git status
+
+On branch master
+Your branch and 'origin/master' have diverged,
+and have 8 and 1 different commits each, respectively.
+  (use "git pull" to merge the remote branch into yours)
+
+2 Options:
+git pull    | the Local and Remote version of a branch will be merged. 
+            | Just like merging branches, this will introduce a _merge commit.
+
+
+To push all your branches:
+git push REMOTE '*:*'
+git push REMOTE --all
+
+
+Update patrick on github remote master
+git_training git:(change_alice) ✗ git pull origin master -r
+creates new commit
+
+Update patrick on github remote master again:
+fetched the updated line, aligned with the last commit with master. not sure about new commit
