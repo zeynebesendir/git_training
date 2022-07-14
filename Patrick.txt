@@ -1,3 +1,3 @@
 Added to create change. git pull --rebase this on change_alice
-This one executed(created a commit 'update patric.txt'): git_training git:(change_alice) ✗ git pull origin master -r | now this line added to try git rebase master
+This one executed(created a commit 'update patrick.txt'): git_training git:(change_alice) ✗ git pull origin master -r | now this line added to try git rebase master
 This line from newly created copy_master branch
